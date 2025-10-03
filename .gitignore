@@ -1,0 +1,13 @@
+# Pasta de dependências do Composer
+/vendor/
+
+# Arquivo de configuração de ambiente com senhas
+.env
+config.local.php
+database.php
+
+# Arquivos de IDEs e do sistema operacional
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
