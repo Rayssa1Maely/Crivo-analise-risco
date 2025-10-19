@@ -5,6 +5,7 @@
 .env
 config.local.php
 database.php
+config.php
 
 # Arquivos de IDEs e do sistema operacional
 .idea/

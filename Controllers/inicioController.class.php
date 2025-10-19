@@ -3,7 +3,7 @@
 	{
 		public function inicio()
 		{
-			require_once "Views/Apresentacao.php";
+			require_once "Views/inicio.php";
 		}
 	}
 ?>

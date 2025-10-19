@@ -25,12 +25,10 @@
                 </div>
 
                 <div class="flex items-center space-x-6">
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Entrar</a>
-                    <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Cadastrar</a>
+                    <a href="/crivo/login" class="text-gray-600 hover:text-blue-600">Entrar</a>
+                    <a href="/crivo/cadastrar" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Cadastrar</a>
                 </div>
 
             </div>
         </nav>
     </header>
-    </body>
-</html>

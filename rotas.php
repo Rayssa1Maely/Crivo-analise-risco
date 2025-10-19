@@ -30,10 +30,16 @@
 
 	$route = new Rotas();
 	$route->get("/", [inicioController::class,"inicio"]);
+
+	$route->get("/dashboard", [inicioController::class,"dashboard"]);
+
 	$route->get("/cadastrar", [usuarioController::class,"cadastrar"]);
 	$route->post("/cadastrar", [usuarioController::class,"cadastrar"]);
 
-	$route->get("/cadastrar", [usuarioController::class,"login"]);
-	$route->post("/cadastrar", [usuarioController::class,"login"]);
+	$route->get("/login", [usuarioController::class,"login"]);
+	$route->post("/login", [usuarioController::class,"login"]);
+
+	$route->get("/analisar", [analiseController::class,"analisar"]);
+	$route->post("/analisar", [analiseController::class,"analisar"]);
 
 ?>

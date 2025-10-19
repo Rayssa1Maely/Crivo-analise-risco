@@ -9,6 +9,10 @@
 		{
 			require_once 'Models/' . $class . '.class.php';
 		}
+		else if(file_exists('Models/DAO/' . $class . '.class.php'))
+		{
+			require_once 'Models/DAO/' . $class . '.class.php';
+		}
 		else
 		{
 			die("Arquivo não existe " . $class);

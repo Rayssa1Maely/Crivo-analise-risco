@@ -11,8 +11,8 @@ require_once "Views/menu.php";
 
             <div class="mt-10 max-w-xl mx-auto">
                 <div class="flex flex-col space-y-4">
-                    <input type="text" placeholder="Insira a URL do e-commerce para analisar (e.g., example-shop.com)" class="w-full px-5 py-4 text-base text-gray-700 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="flex items-center justify-center w-full px-5 py-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <input id="url-input" type="text" placeholder="Insira a URL do e-commerce para analisar (e.g., example-shop.com)" class="w-full px-5 py-4 text-base text-gray-700 placeholder-gray-400 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="analyze-button" class="flex items-center justify-center w-full px-5 py-4 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -20,17 +20,19 @@ require_once "Views/menu.php";
                     </button>
                 </div>
             </div>
-
+            
             <div class="mt-6 flex items-center justify-center text-sm text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Verificaremos o site em bancos de dados de ameaças conhecidas, verificaremos certificados SSL e analisaremos a reputação do domínio.
             </div>
-
         </div>
     </section>
 
+            <?php
+            require_once "resultado.php";
+            ?>
 
     <section class="bg-white py-20 sm:py-24">
         <div class="container mx-auto px-6 text-center">
