@@ -1,5 +1,10 @@
 <?php
 	require_once "rotas.php";
+	require_once 'vendor/autoload.php';
+
+	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+	$dotenv->load();
+
 	spl_autoload_register(function($class){
 		if(file_exists('Controllers/' . $class . '.class.php'))
 		{
@@ -19,7 +24,7 @@
 		}
 	});
 	
-	//rotas
+	
 	$uri = parse_url($_SERVER["REQUEST_URI"])["path"];
 	$uri = substr($uri, strpos($uri,'/',1));
 	$route->verificar_rota($_SERVER["REQUEST_METHOD"],$uri);

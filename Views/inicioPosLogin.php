@@ -1,4 +1,13 @@
 <?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $nome_usuario = "Usuário"; 
+    if (isset($_SESSION["nome_usuario"])) {
+        $nome_usuario = $_SESSION["nome_usuario"];
+    }
+
     require_once "Views/menu_posLogado.php";
 ?>
 
@@ -7,7 +16,7 @@
             <div class="container mx-auto px-6 text-center">
 
                 
-                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Olá, [Nome do Usuário]!</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Olá, <?php echo htmlspecialchars($nome_usuario); ?>!</h1>
                 <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Pronto para analisar um novo site ou revisitar
                     seu histórico?</p>
 

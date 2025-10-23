@@ -31,7 +31,7 @@
 	$route = new Rotas();
 	$route->get("/", [inicioController::class,"inicio"]);
 
-	$route->get("/dashboard", [inicioController::class,"dashboard"]);
+	$route->get("/dashboard", [usuarioController::class,"dashboard"]);
 
 	$route->get("/cadastrar", [usuarioController::class,"cadastrar"]);
 	$route->post("/cadastrar", [usuarioController::class,"cadastrar"]);
@@ -39,7 +39,14 @@
 	$route->get("/login", [usuarioController::class,"login"]);
 	$route->post("/login", [usuarioController::class,"login"]);
 
+	$route->get('/login/google', [usuarioController::class, 'authGoogle']);
+	$route->get('/login/google-callback', [usuarioController::class, 'callbackGoogle']);
+
 	$route->get("/analisar", [analiseController::class,"analisar"]);
 	$route->post("/analisar", [analiseController::class,"analisar"]);
+
+	$route->get("/historico", [analiseController::class,"historico"]);
+
+	$route->get("/avaliacoes", [avaliacaoController::class,"index"]);
 
 ?>
