@@ -24,7 +24,7 @@ class usuarioController
 			}
 
 			if (!$erro) {
-                
+
 				$usuarioDAO = new UsuarioDAO($this->param);
 				$usuarioEncontrado = $usuarioDAO->buscarPorEmail($_POST["email"]);
 
@@ -33,7 +33,7 @@ class usuarioController
 					if (!isset($_SESSION)) {
 						session_start();
 					}
-        
+
 					$_SESSION["id_usuario"] = $usuarioEncontrado->getId();
 					$_SESSION["nome_usuario"] = $usuarioEncontrado->getNome();
 
@@ -101,17 +101,16 @@ class usuarioController
 					$usuario = new Usuario(0, $_POST["nome"], $_POST["email"], $senhaCriptografada);
 
 					if ($usuarioDAO->cadastrar($usuario)) {
-						
+
 						$novoUsuario = $usuarioDAO->buscarPorEmail($_POST["email"]);
 
-						if($novoUsuario)
-						{
+						if ($novoUsuario) {
 							if (!isset($_SESSION)) {
 								session_start();
 							}
 							$_SESSION["id_usuario"] = $novoUsuario->getId();
 							$_SESSION["nome_usuario"] = $novoUsuario->getNome();
-	
+
 							header("Location: /crivo/dashboard");
 							exit();
 
@@ -137,106 +136,121 @@ class usuarioController
 
 	public function authGoogle()
 	{
-        if (!isset($_SESSION)) {
-            session_start();
-        }
+		if (!isset($_SESSION)) {
+			session_start();
+		}
 
-        $client = new Google_Client();
+		$client = new Google_Client();
 
-        $client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+		$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
 		$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
 
-        
-        //    (TEM QUE SER EXATAMENTE A MESMA DO GOOGLE CONSOLE E DAS SUAS ROTAS)
-        $redirectUri = 'http://localhost/crivo/login/google-callback';
-        $client->setRedirectUri($redirectUri);
 
-        $client->addScope("email");
-        $client->addScope("profile");
+		$redirectUri = 'http://localhost/crivo/login/google-callback';
+		$client->setRedirectUri($redirectUri);
 
-        $authUrl = $client->createAuthUrl();
+		$client->addScope("email");
+		$client->addScope("profile");
 
-        header('Location: ' . $authUrl);
-        exit();
-    
+		$authUrl = $client->createAuthUrl();
+
+		header('Location: ' . $authUrl);
+		exit();
+
 	}
 
-    public function callbackGoogle()
-    {
-        if (!isset($_SESSION)) {
-            session_start();
-        }
+	public function callbackGoogle()
+	{
+		if (!isset($_SESSION)) {
+			session_start();
+		}
 
-		try
-		{
+		if (isset($_SESSION['google_authenticated']) && $_SESSION['google_authenticated'] === true) {
+			header('Location: /crivo/dashboard');
+			exit();
+		}
 
-            if (isset($_GET['error'])) {
-                header('Location: /crivo/login?erro=google_negado');
-                exit();
-            }
+		try {
 
-            if (!isset($_GET['code'])) {
-                header('Location: /crivo/login?erro=google_sem_codigo');
-                exit();
-            }
+			if (isset($_GET['error'])) {
+				header('Location: /crivo/login?erro=google_negado');
+				exit();
+			}
 
-            $client = new Google_Client();
-            $client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
-            $client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
-            $redirectUri = 'http://localhost/crivo/login/google-callback';
-            $client->setRedirectUri($redirectUri);
+			if (!isset($_GET['code'])) {
+				header('Location: /crivo/login?erro=google_sem_codigo');
+				exit();
+			}
 
-            $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-        
-            if (isset($token['error'])) {
-                throw new Exception("Falha ao obter token: " . $token['error_description']);
-            }
-            
-            $client->setAccessToken($token);
+			$client = new Google_Client();
+			$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+			$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+			$redirectUri = 'http://localhost/crivo/login/google-callback';
+			$client->setRedirectUri($redirectUri);
 
-            $oauth2 = new Google_Service_Oauth2($client);
-            $googleUserInfo = $oauth2->userinfo->get();
-            
-            $email = $googleUserInfo->email;
-            $nome = $googleUserInfo->name;
 
-            $usuarioDAO = new UsuarioDAO($this->param);
+			$code = $_GET['code'] ?? null;
 
-            if ($usuarioDAO->emailJaExiste($email)) {
+			if (!$code) {
+				header('Location: /crivo/login?erro=google_codigo_ausente');
+				exit();
+			}
 
-                $usuario = $usuarioDAO->buscarPorEmail($email); 
-                
-                if ($usuario) {
-                    $_SESSION["id_usuario"] = $usuario->getId();
-                    $_SESSION["nome_usuario"] = $usuario->getNome();
-                    header('Location: /crivo/dashboard');
-                    exit();
-                } else {
-                    throw new Exception("E-mail existe, mas não foi possível buscar o usuário.");
-                }
+			$token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
 
-            } else {
-                $senhaAleatoria = bin2hex(random_bytes(32)); 
-                $senhaCriptografada = password_hash($senhaAleatoria, PASSWORD_DEFAULT);
+			if (!is_array($token)) {
+				throw new Exception("O Google retornou um valor inesperado para o token.");
+			}
 
-                $novoUsuario = new Usuario(0, $nome, $email, $senhaCriptografada);
-                
-                if ($usuarioDAO->cadastrar($novoUsuario)) {
-                    $usuario = $usuarioDAO->buscarPorEmail($email);
-                    
-                    $_SESSION["id_usuario"] = $usuario->getId();
-                    $_SESSION["nome_usuario"] = $usuario->getNome();
-                    header('Location: /crivo/dashboard');
-                    exit();
-                } else {
-                    throw new Exception("Falha ao cadastrar o novo usuário vindo do Google.");
-                }
-            }
+			if (isset($token['error'])) {
+				throw new Exception("Falha ao obter token: " . $token['error_description'] ?? $token['error']);
+			}
 
-        } catch (Exception $e) {
-            header('Location: /crivo/login?erro=google_exception');
-            exit();
-        }
+			$client->setAccessToken($token);
+
+			$oauth2 = new Google_Service_Oauth2($client);
+			$googleUserInfo = $oauth2->userinfo->get();
+
+			$email = $googleUserInfo->email;
+			$nome = $googleUserInfo->name;
+
+			$usuarioDAO = new UsuarioDAO($this->param);
+
+			if ($usuarioDAO->emailJaExiste($email)) {
+
+				$usuario = $usuarioDAO->buscarPorEmail($email);
+
+				if ($usuario) {
+					$_SESSION["id_usuario"] = $usuario->getId();
+					$_SESSION["nome_usuario"] = $usuario->getNome();
+					header('Location: /crivo/dashboard');
+					exit();
+				} else {
+					throw new Exception("E-mail existe, mas não foi possível buscar o usuário.");
+				}
+
+			} else {
+				$senhaAleatoria = bin2hex(random_bytes(32));
+				$senhaCriptografada = password_hash($senhaAleatoria, PASSWORD_DEFAULT);
+
+				$novoUsuario = new Usuario(0, $nome, $email, $senhaCriptografada);
+
+				if ($usuarioDAO->cadastrar($novoUsuario)) {
+					$usuario = $usuarioDAO->buscarPorEmail($email);
+
+					$_SESSION["id_usuario"] = $usuario->getId();
+					$_SESSION["nome_usuario"] = $usuario->getNome();
+					header('Location: /crivo/dashboard');
+					exit();
+				} else {
+					throw new Exception("Falha ao cadastrar o novo usuário vindo do Google.");
+				}
+			}
+
+		} catch (Exception $e) {
+			header('Location: /crivo/login?erro=google_exception');
+			exit();
+		}
 	}
 
 

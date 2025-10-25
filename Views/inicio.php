@@ -30,9 +30,7 @@ require_once "Views/menu.php";
         </div>
     </section>
 
-            <?php
-            require_once "resultado.php";
-            ?>
+    <section id="resultado-analise" class="container mx-auto px-6 py-10"></section>
 
     <section class="bg-white py-20 sm:py-24">
         <div class="container mx-auto px-6 text-center">
