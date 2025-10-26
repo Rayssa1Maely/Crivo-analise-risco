@@ -48,5 +48,7 @@
 	$route->get("/historico", [analiseController::class,"historico"]);
 
 	$route->get("/avaliacoes", [avaliacaoController::class,"index"]);
+	$route->get("/avaliacoes/salvar", [avaliacaoController::class,"salvar"]);
+	$route->post("/avaliacoes/salvar", [avaliacaoController::class,"salvar"]);
 
 ?>

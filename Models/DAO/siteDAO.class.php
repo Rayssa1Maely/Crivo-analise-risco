@@ -3,7 +3,7 @@
     {
         public function __construct(private $db = null){}
 
-        public function obterOuCriarIdPelaUrl(string $url): ?int
+        public function obterOuCriarIdPelaUrl($url)
     {
         $sqlSelect = "SELECT id_site FROM sites WHERE url = ?";
         try {
@@ -13,7 +13,7 @@
             $resultado = $stmSelect->fetch(PDO::FETCH_ASSOC);
 
             if ($resultado) {
-                return (int)$resultado['id_site'];
+                return $resultado['id_site'];
             }
 
             $sqlInsert = "INSERT INTO sites (url) VALUES (?)";

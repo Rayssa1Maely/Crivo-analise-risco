@@ -1,64 +1,79 @@
 <?php
 class avaliacaoController
+{
+    private $param;
+    public function __construct()
     {
-        private $param;
-		public function __construct()
-		{
-			$this->param = Conexao::getInstancia();
+        $this->param = Conexao::getInstancia();
 
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-		}
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
 
-        public function index()
-        {
-            $avaliacaoDAO = new AvaliacaoDAO($this->param);
-            $avaliacoes = $avaliacaoDAO->buscarTodas();
+    public function index()
+    {
+        $avaliacaoDAO = new AvaliacaoDAO($this->param);
+        $avaliacoes = $avaliacaoDAO->buscarTodas();
 
-            usort($avaliacoes, function($a, $b) {
-                $timeA = DateTime::createFromFormat('d/m/Y H:i', $a->getDataAvaliacao());
-                $timeB = DateTime::createFromFormat('d/m/Y H:i', $b->getDataAvaliacao());
-                return $timeB->getTimestamp() - $timeA->getTimestamp();
-            });
+        $usuario_logado = isset($_SESSION['id_usuario']);
+        $nome_usuario = $_SESSION['nome_usuario'] ?? ''; 
 
-            $usuario_logado = isset($_SESSION['id_usuario']);
-            $nome_usuario = $_SESSION['nome_usuario'] ?? '';
-
-            require_once "Views/avaliacoes.php";
+        $msg_feedback = null;
+        if (isset($_SESSION['msg_avaliacao'])) {
+            $msg_feedback = $_SESSION['msg_avaliacao'];
+            unset($_SESSION['msg_avaliacao']); 
         }
 
-        public function salvar()
-        {
-            if (!isset($_SESSION['id_usuario'])) {
-                header("Location: /crivo/login");
-                exit();
-            }
+        $dadosParaView = [
+            'avaliacoes' => $avaliacoes,
+            'usuario_logado' => $usuario_logado,
+            'nome_usuario' => $nome_usuario,
+            'msg_feedback' => $msg_feedback 
+        ];
+        extract($dadosParaView); 
 
-            if ($_POST && !empty($_POST['nota']) && !empty($_POST['comentario'])) {
-                
-                $id_usuario = $_SESSION['id_usuario'];
-                $nota = (int)$_POST['nota'];
-                $comentario = trim($_POST['comentario']);
+        require_once "Views/avaliacoes.php";
+    }
 
-                if ($nota >= 1 && $nota <= 5) {
-                    $avaliacaoDAO = new AvaliacaoDAO($this->param);
-                    
-                    if ($avaliacaoDAO->adicionarAvaliacao($id_usuario, $nota, $comentario)) {
-                        $_SESSION['msg_avaliacao'] = ['tipo' => 'sucesso', 'texto' => 'Sua avaliação foi enviada!'];
-                    } else {
-                        $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Erro ao salvar sua avaliação. Tente novamente.'];
-                    }
-                } else {
-                    $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Por favor, selecione uma nota de 1 a 5.'];
-                }
-            } else {
-                $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Por favor, preencha a nota e o comentário.'];
-            }
-
-            header("Location: /crivo/avaliacoes");
+    public function salvar()
+    {
+        if (!isset($_SESSION['id_usuario'])) {
+            header("Location: /crivo/login?erro=nao_logado");
             exit();
         }
 
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['url_analisada']) && !empty($_POST['comentario']) ) 
+        {
+            $id_usuario = $_SESSION['id_usuario'];
+            $comentario = trim(strip_tags($_POST['comentario'])); 
+            $url_analisada = trim($_POST['url_analisada']);
+
+            if (!filter_var($url_analisada, FILTER_VALIDATE_URL)) {
+                $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'A URL informada não parece válida. Use o formato completo (ex: https://...).'];
+            } else {
+                $siteDAO = new SiteDAO($this->param);
+                $id_site = $siteDAO->obterOuCriarIdPelaUrl($url_analisada);
+
+                if ($id_site === null) {
+                    $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Erro ao processar a URL informada no banco de dados. Tente novamente.'];
+                } else {
+                    $avaliacaoDAO = new AvaliacaoDAO($this->param);
+                    if ($avaliacaoDAO->adicionarAvaliacao($id_usuario, $id_site, $comentario)) {
+                        $_SESSION['msg_avaliacao'] = ['tipo' => 'sucesso', 'texto' => 'Sua avaliação foi enviada com sucesso! Obrigado por contribuir.'];
+                    } else {
+                        $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Erro ao salvar sua avaliação no banco de dados. Tente novamente.'];
+                    }
+                }
+            }
+        } else {
+            $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Por favor, preencha a URL do site avaliado e o seu comentário.'];
+        }
+
+        header("Location: /crivo/avaliacoes");
+        exit();
     }
+
+
+}
 ?>
