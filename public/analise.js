@@ -15,7 +15,7 @@ analyzeButton.addEventListener("click", function () {
   analyzeButton.classList.add("opacity-50", "cursor-not-allowed");
   resultadoDiv.innerHTML = "";
   
-  fetch("/crivo/analisar", {
+  fetch("analisar", {
 
     method: "POST",
     headers: {

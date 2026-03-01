@@ -1,9 +1,5 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-
 class AnaliseController
 {
     private $param;
@@ -15,7 +11,7 @@ class AnaliseController
 
     public function analisar()
     {
-        $msg = ["","",""];
+        $msg = ["", "", ""];
 
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             require_once "Views/inicio.php";
@@ -23,9 +19,9 @@ class AnaliseController
         }
 
         if (empty($_POST['url']) || !filter_var($_POST['url'], FILTER_VALIDATE_URL)) {
-             http_response_code(400);
-             echo '<p class="text-red-600 text-center">URL inválida ou não fornecida.</p>';
-             return;
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">URL inválida ou não fornecida.</p>';
+            return;
         }
         $urlParaAnalisar = $_POST['url'];
 
@@ -41,25 +37,32 @@ class AnaliseController
         $partesUrl = parse_url($urlParaAnalisar);
         $dominio = $partesUrl['host'] ?? null;
         if (!$dominio) {
-             http_response_code(400);
-             echo '<p class="text-red-600 text-center">URL inválida. Não foi possível extrair o domínio.</p>';
-             return;
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">URL inválida. Não foi possível extrair o domínio.</p>';
+            return;
         }
         $dominio = preg_replace('/^www\./i', '', $dominio);
-
-
-        $client = new Client(['timeout' => 15.0]);
 
         $dadosVirusTotal = null;
         $dadosWhois = null;
         $erroApi = null;
 
         try {
-            $responsePost = $client->request('POST', 'https://www.virustotal.com/api/v3/urls', [
-                'headers' => ['x-apikey' => $apiKeyVirusTotal],
-                'form_params' => ['url' => $urlParaAnalisar]
+            $postData = 'url=' . urlencode($urlParaAnalisar);
+            $ch = curl_init('https://www.virustotal.com/api/v3/urls');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'x-apikey: ' . $apiKeyVirusTotal,
+                'Content-Type: application/x-www-form-urlencoded'
             ]);
-            $jsonPost = json_decode($responsePost->getBody()->getContents());
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+            $responsePost = curl_exec($ch);
+            $jsonPost = json_decode($responsePost);
+            curl_close($ch);
 
             if (!isset($jsonPost->data->id)) {
                 throw new Exception("Resposta inesperada da API VirusTotal (POST)");
@@ -67,124 +70,122 @@ class AnaliseController
             $analysisId = $jsonPost->data->id;
 
             sleep(3);
-            $responseGet = $client->request('GET', 'https://www.virustotal.com/api/v3/analyses/' . $analysisId, [
-                'headers' => ['x-apikey' => $apiKeyVirusTotal]
-            ]);
-            $dadosVirusTotal = json_decode($responseGet->getBody()->getContents());
 
-        } catch (ClientException | RequestException $e) {
-             $erroApi = "Erro ao contatar API VirusTotal: " . $e->getResponse()->getBody()->getContents();
+            $ch = curl_init('https://www.virustotal.com/api/v3/analyses/' . $analysisId);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['x-apikey: ' . $apiKeyVirusTotal]);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
+            $responseGet = curl_exec($ch);
+            $dadosVirusTotal = json_decode($responseGet);
+            curl_close($ch);
+
         } catch (Exception $e) {
-             $erroApi = "Erro (VirusTotal): " . $e->getMessage();
+            $erroApi = "Erro (VirusTotal): " . $e->getMessage();
         }
 
+        if (!$erroApi) {
+            try {
+                $urlWhois = "https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=$apiKeyWhois&domainName=$dominio&outputFormat=JSON&da=2";
+                $ch = curl_init($urlWhois);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 
-        if (!$erroApi || strpos($erroApi, 'VirusTotal') !== false) {
-             try {
-                 $responseWhois = $client->request('GET', 'https://www.whoisxmlapi.com/whoisserver/WhoisService', [
-                     'query' => [
-                         'apiKey' => $apiKeyWhois,
-                         'domainName' => $dominio,
-                         'outputFormat' => 'JSON',
-                         'da' => 2,
-                     ]
-                 ]);
-                 $dadosWhois = json_decode($responseWhois->getBody()->getContents());
+                $responseWhois = curl_exec($ch);
+                $dadosWhois = json_decode($responseWhois);
+                curl_close($ch);
 
-                 if (isset($dadosWhois->ErrorMessage)) {
+                if (isset($dadosWhois->ErrorMessage)) {
                     throw new Exception("API WHOIS: " . $dadosWhois->ErrorMessage->msg);
-                 }
+                }
 
-             } catch (ClientException | RequestException $e) {
-                 $erroApi .= ($erroApi ? "\n<br>" : "") . "Erro ao contatar API WHOIS: " . $e->getResponse()->getBody()->getContents();
-             } catch (Exception $e) {
-                  $erroApi .= ($erroApi ? "\n<br>" : "") . "Erro (WHOIS): " . $e->getMessage();
-             }
+            } catch (Exception $e) {
+                $erroApi .= ($erroApi ? "\n<br>" : "") . "Erro (WHOIS): " . $e->getMessage();
+            }
         }
 
         $pontuacaoMaliciosa = 0;
         $pontuacaoSuspeita = 0;
         $totalMecanismos = 0;
+
         if ($dadosVirusTotal && isset($dadosVirusTotal->data->attributes->stats)) {
-             $stats = $dadosVirusTotal->data->attributes->stats;
-             $pontuacaoMaliciosa = $stats->malicious ?? 0;
-             $pontuacaoSuspeita = $stats->suspicious ?? 0;
-             $totalMecanismos = ($stats->harmless ?? 0) + $pontuacaoMaliciosa + $pontuacaoSuspeita + ($stats->undetected ?? 0);
+            $stats = $dadosVirusTotal->data->attributes->stats;
+            $pontuacaoMaliciosa = $stats->malicious ?? 0;
+            $pontuacaoSuspeita = $stats->suspicious ?? 0;
+            $totalMecanismos = ($stats->harmless ?? 0) + $pontuacaoMaliciosa + $pontuacaoSuspeita + ($stats->undetected ?? 0);
         }
 
         $idadeDominioTexto = 'Indisponível';
         $dataCriacao = null;
         $mesesIdade = null;
+
         if ($dadosWhois && isset($dadosWhois->WhoisRecord->createdDate)) {
             try {
-                 $dataCriacaoStr = $dadosWhois->WhoisRecord->createdDate;
-                 $dataCriacao = new DateTime($dataCriacaoStr);
-                 $agora = new DateTime();
-                 $diferenca = $agora->diff($dataCriacao);
-                 $mesesIdade = $diferenca->y * 12 + $diferenca->m;
+                $dataCriacaoStr = $dadosWhois->WhoisRecord->createdDate;
+                $dataCriacao = new DateTime($dataCriacaoStr);
+                $agora = new DateTime();
+                $diferenca = $agora->diff($dataCriacao);
+                $mesesIdade = $diferenca->y * 12 + $diferenca->m;
 
-                 if ($diferenca->y >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->y . " anos"; }
-                 elseif ($diferenca->y == 1) { $idadeDominioTexto = "Criado há 1 ano"; }
-                 elseif ($diferenca->m >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->m . " meses"; }
-                 elseif ($diferenca->m == 1) { $idadeDominioTexto = "Criado há 1 mês"; }
-                 else { $idadeDominioTexto = "Criado há " . $diferenca->d . ($diferenca->d > 1 ? " dias" : " dia"); }
+                if ($diferenca->y >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->y . " anos"; }
+                elseif ($diferenca->y == 1) { $idadeDominioTexto = "Criado há 1 ano"; }
+                elseif ($diferenca->m >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->m . " meses"; }
+                elseif ($diferenca->m == 1) { $idadeDominioTexto = "Criado há 1 mês"; }
+                else { $idadeDominioTexto = "Criado há " . $diferenca->d . ($diferenca->d > 1 ? " dias" : " dia"); }
 
             } catch (Exception $e) { $idadeDominioTexto = 'Data inválida'; }
         } elseif ($dadosWhois && !isset($dadosWhois->ErrorMessage)) {
-             $idadeDominioTexto = 'Data de criação não informada';
+            $idadeDominioTexto = 'Data de criação não informada';
         }
 
-        $nivelRisco = 'Baixo'; $corRisco = 'green'; $pontuacao = 100;
+        $nivelRisco = 'Baixo';
+        $corRisco = 'green';
+        $pontuacao = 100;
 
         if ($pontuacaoMaliciosa >= 3) {
             $nivelRisco = 'Alto'; $corRisco = 'red'; $pontuacao -= 70;
         } elseif ($pontuacaoMaliciosa > 0) {
-             $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 40;
+            $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 40;
         } elseif ($pontuacaoSuspeita > 0) {
-             $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 20;
+            $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 20;
         }
 
         if ($mesesIdade !== null) {
             if ($mesesIdade < 3) {
-                 if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
-                 elseif ($nivelRisco == 'Médio') { $nivelRisco = 'Alto'; $corRisco = 'red'; }
-                 $pontuacao -= 50;
+                if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
+                elseif ($nivelRisco == 'Médio') { $nivelRisco = 'Alto'; $corRisco = 'red'; }
+                $pontuacao -= 50;
             } elseif ($mesesIdade < 6) {
-                 if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
-                 $pontuacao -= 30;
+                if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
+                $pontuacao -= 30;
             } elseif ($mesesIdade < 12) {
-                 $pontuacao -= 10;
+                $pontuacao -= 10;
             }
         } else {
-             $pontuacao -= 5;
+            $pontuacao -= 5;
         }
 
         $temSSL = false;
-        try {
-            $guzzleClientSSL = new Client(['timeout' => 5.0, 'verify' => true]);
-            $guzzleClientSSL->request('GET', $urlParaAnalisar);
+        $ch = curl_init($urlParaAnalisar);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+        if (!curl_errno($ch)) {
             $temSSL = true;
-        } catch (RequestException $e) {
-             if (strpos($e->getMessage(), 'SSL') === false && strpos($e->getMessage(), 'certificate') === false) {
-                 if (strpos($urlParaAnalisar, 'https://') === 0) {
-                    
-                 } else {
-                     $temSSL = false;
-                 }
-            } else {
-                $temSSL = false;
-            }
-        } catch (Exception $e) {
-            $temSSL = false;
         }
+        curl_close($ch);
 
         if (!$temSSL && strpos($urlParaAnalisar, 'https://') === 0) {
-             if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
-             $pontuacao -= 20;
+            if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
+            $pontuacao -= 20;
         }
 
-
         $pontuacao = max(0, min(100, $pontuacao));
+
+        $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao);
 
         $dadosParaView = [
             'url' => $urlParaAnalisar,
@@ -209,22 +210,30 @@ class AnaliseController
 
     }
 
-    private function salvarAnaliseNoHistorico($idUsuario, $idSite, $nivelRisco, $detalhes) {
-         try {
-            $analiseDAO = new AnaliseDAO($this->param);
+    private function salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao)
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['id_usuario'])) {
+            return;
+        }
+
+        try {
+            $idUsuario = $_SESSION['id_usuario'];
             $siteDAO = new SiteDAO($this->param);
-            $idSiteReal = $siteDAO->obterOuCriarIdPelaUrl($urlParaAnalisar);
+            $idSite = $siteDAO->obterOuCriarIdPelaUrl($urlParaAnalisar);
 
-            if ($idSiteReal) {
-                 $analiseObj = new Analise(0, $idUsuario, $idSiteReal, $nivelRisco, $detalhes);
-                 $analiseDAO->salvar($analiseObj);
+            if ($idSite) {
+                $analiseDAO = new AnaliseDAO($this->param);
+                $detalhes = "Pontuação final: " . $pontuacao . "/100";
+                $analiseDAO->salvar($idUsuario, $idSite, $nivelRisco, $detalhes);
             }
-
-         } catch (Exception $e) {
-             error_log("Erro ao salvar análise no histórico: " . $e->getMessage());
-         }
+        } catch (Exception $e) {
+            error_log("Erro ao salvar análise no histórico: " . $e->getMessage());
+        }
     }
-
 
     public function historico()
     {
@@ -241,22 +250,21 @@ class AnaliseController
         $nome_usuario = $_SESSION['nome_usuario'] ?? 'Usuário';
 
         try {
-             $analiseDAO = new AnaliseDAO($this->param);
-             $historico = $analiseDAO->buscarPorUsuario($id_usuario);
+            $analiseDAO = new AnaliseDAO($this->param);
+            $historico = $analiseDAO->buscarPorUsuario($id_usuario);
         } catch (Exception $e) {
-             $historico = [];
-             $erroHistorico = "Erro ao buscar histórico: " . $e->getMessage();
+            $historico = [];
+            $erroHistorico = "Erro ao buscar histórico: " . $e->getMessage();
         }
-
 
         if (!empty($historico)) {
             usort($historico, function ($a, $b) {
                 try {
-                     $timeA = new DateTime($a->getDataAnaliseOriginal());
-                     $timeB = new DateTime($b->getDataAnaliseOriginal());
-                     return $timeB->getTimestamp() - $timeA->getTimestamp();
+                    $timeA = new DateTime($a->getDataAnaliseOriginal());
+                    $timeB = new DateTime($b->getDataAnaliseOriginal());
+                    return $timeB->getTimestamp() - $timeA->getTimestamp();
                 } catch (Exception $e) {
-                     return 0;
+                    return 0;
                 }
             });
         }
@@ -270,6 +278,4 @@ class AnaliseController
         extract($dadosViewHistorico);
         require_once "Views/historico.php";
     }
-
 }
-?>
