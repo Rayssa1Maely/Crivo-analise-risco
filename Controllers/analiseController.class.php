@@ -164,7 +164,8 @@ class AnaliseController
                 $pontuacao -= 10;
             }
         } else {
-            $pontuacao -= 5;
+            $pontuacao -= 40;
+            $idadeDominioTexto = "Não foi possível verificar a idade (Suspeito)";
         }
 
         $temSSL = false;
@@ -178,9 +179,9 @@ class AnaliseController
         }
         curl_close($ch);
 
-        if (!$temSSL && strpos($urlParaAnalisar, 'https://') === 0) {
+        if (!$temSSL || strpos($urlParaAnalisar, 'https://') !== 0) {
             if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
-            $pontuacao -= 20;
+            $pontuacao -= 25;
         }
 
         $pontuacao = max(0, min(100, $pontuacao));
