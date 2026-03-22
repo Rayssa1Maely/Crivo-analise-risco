@@ -36,7 +36,7 @@
                         <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"></path>
                         </svg>
-                        <p class="text-xs text-gray-500 ml-2 break-all"><?php echo htmlspecialchars($url); ?></p>
+                        <p class="text-xs text-gray-500 ml-2 break-all"><?php echo htmlspecialchars($urlParaAnalisar); ?></p>
                     </div>
                 </div>
             </div>
@@ -59,8 +59,8 @@
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <div class="flex items-start p-4 bg-gray-50 rounded-lg border <?php echo ($temSSL && strpos($url, 'https://') === 0) ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'; ?>">
-                <?php if ($temSSL && strpos($url, 'https://') === 0): ?>
+            <div class="flex items-start p-4 bg-gray-50 rounded-lg border <?php echo ($temSSL && strpos($urlParaAnalisar, 'https://') === 0) ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'; ?>">
+                <?php if ($temSSL && strpos($urlParaAnalisar, 'https://') === 0): ?>
                     <svg class="h-6 w-6 text-green-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
