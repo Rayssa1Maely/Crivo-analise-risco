@@ -20,9 +20,9 @@
                 </div>
 
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Caracteristicas</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Como funciona</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Sobre</a>
+                    <a href="#caracteristica" class="text-gray-600 hover:text-blue-600">Caracteristicas</a>
+                    <a href="#funciona" class="text-gray-600 hover:text-blue-600">Como funciona</a>
+                    <a href="#sobre" class="text-gray-600 hover:text-blue-600">Sobre</a>
                 </div>
 
                 <div class="flex items-center space-x-6">

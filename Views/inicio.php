@@ -50,7 +50,7 @@ require_once "Views/menu.php";
     <section class="bg-white py-20 sm:py-24">
         <div class="container mx-auto px-6 text-center">
 
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Como funciona</h2>
+            <h2 id="funciona" class="text-3xl md:text-4xl font-bold text-gray-900">Como funciona</h2>
             <p class="mt-3 text-lg text-gray-600">Obtenha seu relatório de segurança em segundos</p>
 
             <div class="mt-16 grid md:grid-cols-3 gap-12">
@@ -77,7 +77,7 @@ require_once "Views/menu.php";
     <section class="bg-gray-50 py-20 sm:py-24">
         <div class="container mx-auto px-6 text-center">
 
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Análise de Segurança Abrangente</h2>
+            <h2 id="caracteristica" class="text-3xl md:text-4xl font-bold text-gray-900">Análise de Segurança Abrangente</h2>
             <p class="mt-3 text-lg text-gray-600">Várias camadas de proteção para mantê-lo seguro enquanto faz compras online</p>
 
             <div class="mt-16 grid md:grid-cols-3 gap-8 text-left">
@@ -111,7 +111,109 @@ require_once "Views/menu.php";
             </div>
         </div>
     </section>
-<script src="/crivo/public/analise.js"></script>
+
+    <section id="sobre" class="bg-white py-24">
+        <div class="container mx-auto px-6">
+
+            <div class="grid md:grid-cols-2 items-center gap-16 mb-24">
+                <div class="order-2 md:order-1">
+                    <span class="text-blue-600 font-semibold tracking-wide uppercase text-sm">Nossa Essência</span>
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Missão</h3>
+                    <div class="w-16 h-1 bg-blue-600 mt-4 mb-6"></div>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        O Crivo nasceu da necessidade de tornar o ambiente digital um lugar mais seguro para todos.
+                        Em um cenário onde o e-commerce cresce exponencialmente, nossa missão é empoderar o consumidor
+                        com informações técnicas e confiáveis antes de cada clique no botão 'comprar'.
+                    </p>
+                </div>
+                <div class="order-1 md:order-2 flex justify-center">
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-blue-100 rounded-full blur-2xl opacity-50"></div>
+                        <img src="/crivo/public/img/missao.png" alt="Missão Crivo" class="relative w-full max-w-sm h-auto transform hover:scale-105 transition-transform duration-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 items-center gap-16">
+                <div class="flex justify-center">
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-indigo-100 rounded-full blur-2xl opacity-50"></div>
+                        <img src="/crivo/public/img/duvida.png" alt="O que fazemos" class="relative w-full max-w-sm h-auto transform  hover:scale-105 transition-transform duration-500">
+                    </div>
+                </div>
+                <div>
+                    <span class="text-indigo-600 font-semibold tracking-wide uppercase text-sm">Inovação</span>
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">O que fazemos?</h3>
+                    <div class="w-16 h-1 bg-indigo-600 mt-4 mb-6"></div>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Desenvolvemos uma ferramenta inteligente que analisa camadas críticas de segurança.
+                        Através da integração com APIs globais (VirusTotal, WhoisXML), entregamos um índice de confiança
+                        simplificado, protegendo você de golpes e malwares em tempo real.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-gray-50 py-24">
+        <div class="container mx-auto px-6">
+            <div class="text-left mb-16">
+                <span class="text-indigo-600 font-semibold tracking-wide uppercase text-sm">Valores</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Nossos Pilares</h2>
+                <div class="w-16 h-1 bg-indigo-600 mt-4 mb-6"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+
+                <div class="flex items-start p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition duration-300">
+                    <div class="bg-blue-600 p-3 rounded-lg mr-4 shrink-0 shadow">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 text-lg">Transparência</h4>
+                        <p class="text-gray-700 text-sm mt-1">
+                            Dados auditáveis de registros mundiais.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition duration-300">
+                    <div class="bg-green-600 p-3 rounded-lg mr-4 shrink-0 shadow">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 text-lg">Agilidade</h4>
+                        <p class="text-gray-700 text-sm mt-1">
+                            Análises complexas em segundos.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition duration-300">
+                    <div class="bg-orange-600 p-3 rounded-lg mr-4 shrink-0 shadow">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 text-lg">Comunidade</h4>
+                        <p class="text-gray-700 text-sm mt-1">
+                            Feedback real de usuários.
+                        </p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+
+    <script src="/crivo/public/analise.js"></script>
 </main>
 
 <?php

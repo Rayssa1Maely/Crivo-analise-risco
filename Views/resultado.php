@@ -41,9 +41,10 @@
                 </div>
             </div>
             <div class="mt-4 sm:mt-0 sm:ml-6 flex-shrink-0 flex flex-col items-start sm:items-end w-full sm:w-auto">
+                <a href="/crivo/relatorio">
                 <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Ver Relatório Completo (Em breve)
-                </button>
+                    Ver Relatório Completo
+                </button></a>
                 <button class="mt-2 text-xs text-gray-500 hover:underline">Reportar Problema</button>
             </div>
         </div>
@@ -98,7 +99,7 @@
                 </div>
             </div>
 
-            <div class="flex items-start p-4 bg-gray-50 rounded-lg border <?php echo ($pontuacaoMalicios > 0) ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'; ?>">
+            <div class="flex items-start p-4 bg-gray-50 rounded-lg border <?php echo ($pontuacaoMaliciosa > 0) ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'; ?>">
                 <?php if ($pontuacaoMaliciosa > 0): ?>
                     <svg class="h-6 w-6 text-red-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
