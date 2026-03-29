@@ -1,6 +1,9 @@
 <div class="container mx-auto max-w-4xl">
 
-    <div class="bg-<?php echo $corRisco; ?>-50 border border-<?php echo $corRisco; ?>-200 rounded-lg p-6 shadow-sm mb-8">
+    <div class="bg-<?php
+
+
+                    echo $corRisco; ?>-50 border border-<?php echo $corRisco; ?>-200 rounded-lg p-6 shadow-sm mb-8">
         <div class="flex flex-col sm:flex-row items-start justify-between">
             <div class="flex items-start">
                 <div class="flex-shrink-0">
@@ -42,9 +45,9 @@
             </div>
             <div class="mt-4 sm:mt-0 sm:ml-6 flex-shrink-0 flex flex-col items-start sm:items-end w-full sm:w-auto">
                 <a href="/crivo/relatorio">
-                <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Ver Relatório Completo
-                </button></a>
+                    <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Ver Relatório Completo
+                    </button></a>
                 <button class="mt-2 text-xs text-gray-500 hover:underline">Reportar Problema</button>
             </div>
         </div>
@@ -142,15 +145,48 @@
             <svg class="h-6 w-6 text-blue-600 mr-3" ...>...</svg>
             Avaliações da Comunidade
         </h3>
-        <div class="flex flex-col items-center justify-center py-8">
-            <div class="bg-slate-100 p-4 rounded-full mb-4">
-                <svg class="h-8 w-8 text-gray-500" ...>...</svg>
+
+        <?php if (!isset($_SESSION['id_usuario'])): ?>
+            <div class='flex flex-col items-center justify-center py-8'>
+                <div class='bg-slate-100 p-4 rounded-full mb-4'>
+                    <svg class='h-8 w-8 text-gray-500' ...>...</svg>
+                </div>
+                <p class='text-gray-600 mb-4'>Faça login para ver e adicionar avaliações da comunidade.</p>
+                <a href='/crivo/cadastrar' class='bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm'>
+                    Criar Conta Gratuita
+                </a>
             </div>
-            <p class="text-gray-600 mb-4">Faça login para ver e adicionar avaliações da comunidade.</p>
-            <a href="/crivo/cadastrar" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm">
-                Criar Conta Gratuita
-            </a>
-        </div>
+        <?php else: ?>
+            <?php if (isset($avaliacoes) && is_array($avaliacoes)): ?>
+                <?php foreach ($avaliacoes as $analise): ?>
+                    <tr>
+                        <td class='px-6 py-4 whitespace-nowrap'>
+                            <div class='text-base font-medium text-gray-900 truncate' style='max-width: 300px;'>
+                                <?= htmlspecialchars($analise->getUrlAnalisada()) ?>
+                            </div>
+                            <div class='text-sm text-gray-500 lg:hidden'>
+                                <?= $analise->getDataAnalise() ?>
+                            </div>
+                        </td>
+                        <td class='px-6 py-4 hidden md:table-cell'>
+                            <span class='px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800'>
+                                <?= htmlspecialchars($analise->getResultadoAnalise()) ?>
+                            </span>
+                        </td>
+                        <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell'>
+                            <?= $analise->getDataAnalise() ?>
+                        </td>
+                        <td class='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                            <a href='#' class='text-blue-600 hover:text-blue-800'>Ver detalhes</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="text-gray-500 py-4">Nenhuma avaliação encontrada para este site.</p>
+            <?php endif; ?>
+        <?php endif; ?>
+
     </div>
 
+</div>
 </div>

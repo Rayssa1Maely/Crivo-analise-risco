@@ -34,6 +34,7 @@ class avaliacaoController
         extract($dadosParaView); 
 
         require_once "Views/avaliacoes.php";
+        require_once "Views/resultado.php";
     }
 
     public function salvar()
