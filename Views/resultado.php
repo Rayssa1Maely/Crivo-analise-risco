@@ -1,3 +1,17 @@
+<?php
+$totalAvaliacoes = is_array($avaliacoes) ? count($avaliacoes) : 0;
+$media = 0;
+
+if ($totalAvaliacoes > 0) {
+    $soma = 0;
+    foreach ($avaliacoes as $av) {
+        $soma += $av->getNota();
+    }
+    $media = $soma / $totalAvaliacoes;
+}
+
+?>
+
 <div class="container mx-auto max-w-4xl">
 
     <div class="bg-<?php
@@ -130,62 +144,79 @@
                 <?php endif; ?>
             </div>
 
-            <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <svg class="h-6 w-6 text-gray-500 flex-shrink-0" ...>...</svg>
+            <div class="flex items-start p-4 rounded-lg border <?php echo ($media < 3 && $totalAvaliacoes > 0) ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'; ?>">
+                <svg class="h-6 w-6 <?php echo ($media < 3 && $totalAvaliacoes > 0) ? 'text-yellow-500' : 'text-green-500'; ?> flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
                 <div class="ml-3">
-                    <p class="font-semibold text-gray-800">Avaliações de Usuários</p>
-                    <p class="text-sm text-gray-600">Faça login para ver/adicionar</p>
+                    <p class="font-semibold text-gray-800 text-base">Reputação da Comunidade</p>
+                    <p class="text-sm text-gray-600">
+                        <?php
+                        if ($totalAvaliacoes == 0) echo "Sem avaliações ainda.";
+                        else echo "Média: " . number_format($media, 1) . " / 5.0 (" . $totalAvaliacoes . " avaliações)";
+                        ?>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white border border-gray-200 rounded-lg p-6 text-center">
-        <h3 class="text-lg font-semibold text-gray-900 mb-8 flex items-center">
-            <svg class="h-6 w-6 text-blue-600 mr-3" ...>...</svg>
+    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-900 mb-8 flex items-center border-b pb-3">
+            <svg class="h-6 w-6 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
             Avaliações da Comunidade
         </h3>
 
         <?php if (!isset($_SESSION['id_usuario'])): ?>
             <div class='flex flex-col items-center justify-center py-8'>
                 <div class='bg-slate-100 p-4 rounded-full mb-4'>
-                    <svg class='h-8 w-8 text-gray-500' ...>...</svg>
+                    <svg class='h-8 w-8 text-gray-500' fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
                 </div>
                 <p class='text-gray-600 mb-4'>Faça login para ver e adicionar avaliações da comunidade.</p>
                 <a href='/crivo/cadastrar' class='bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm'>
                     Criar Conta Gratuita
                 </a>
             </div>
+        <?php elseif (empty($avaliacoes)): ?>
+            <p class="text-gray-500 py-8 text-center">Nenhuma avaliação encontrada para este site.</p>
         <?php else: ?>
-            <?php if (isset($avaliacoes) && is_array($avaliacoes)): ?>
-                <?php foreach ($avaliacoes as $analise): ?>
-                    <tr>
-                        <td class='px-6 py-4 whitespace-nowrap'>
-                            <div class='text-base font-medium text-gray-900 truncate' style='max-width: 300px;'>
-                                <?= htmlspecialchars($analise->getUrlAnalisada()) ?>
-                            </div>
-                            <div class='text-sm text-gray-500 lg:hidden'>
-                                <?= $analise->getDataAnalise() ?>
-                            </div>
-                        </td>
-                        <td class='px-6 py-4 hidden md:table-cell'>
-                            <span class='px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800'>
-                                <?= htmlspecialchars($analise->getResultadoAnalise()) ?>
-                            </span>
-                        </td>
-                        <td class='px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell'>
-                            <?= $analise->getDataAnalise() ?>
-                        </td>
-                        <td class='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                            <a href='#' class='text-blue-600 hover:text-blue-800'>Ver detalhes</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-gray-500 py-4">Nenhuma avaliação encontrada para este site.</p>
-            <?php endif; ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentário</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php foreach ($avaliacoes as $av): ?>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <?= htmlspecialchars($av->getNomeUsuario()) ?>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500">
+                                    <?= nl2br(htmlspecialchars($av->getComentario())) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex text-yellow-400">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <svg class="h-4 w-4 <?= ($i <= $av->getNota()) ? 'fill-current' : 'text-gray-300 fill-current' ?>" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
+                                        <?php endfor; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
-
     </div>
 
 </div>

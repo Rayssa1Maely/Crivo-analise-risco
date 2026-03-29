@@ -8,7 +8,8 @@ class Avaliacao
         private string $url_analisada = "",
         private string $comentario = "",
         private string $data_avaliacao = "",
-        private string $nome_usuario = ""
+        private string $nome_usuario = "",
+        private int $nota = 5
     ) {
     }
 
@@ -50,6 +51,10 @@ class Avaliacao
     public function getUrlAnalisada()
     {
         return $this->url_analisada;
+    }
+
+    public function getNota() {
+        return $this->nota;
     }
 }
 ?>

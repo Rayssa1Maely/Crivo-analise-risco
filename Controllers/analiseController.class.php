@@ -24,7 +24,7 @@ class AnaliseController
             return;
         }
         $urlParaAnalisar = $_POST['url'];
-
+        $avaliacoesDoSite = [];
         $apiKeyVirusTotal = $_ENV['VIRUSTOTAL_API_KEY'] ?? null;
         $apiKeyWhois = $_ENV['WHOISXMLAPI_KEY'] ?? null;
 
@@ -80,7 +80,6 @@ class AnaliseController
             $responseGet = curl_exec($ch);
             $dadosVirusTotal = json_decode($responseGet);
             curl_close($ch);
-
         } catch (Exception $e) {
             $erroApi = "Erro (VirusTotal): " . $e->getMessage();
         }
@@ -100,11 +99,11 @@ class AnaliseController
                 if (isset($dadosWhois->ErrorMessage)) {
                     throw new Exception("API WHOIS: " . $dadosWhois->ErrorMessage->msg);
                 }
-
             } catch (Exception $e) {
                 $erroApi .= ($erroApi ? "\n<br>" : "") . "Erro (WHOIS): " . $e->getMessage();
             }
         }
+
 
         $pontuacaoMaliciosa = 0;
         $pontuacaoSuspeita = 0;
@@ -129,13 +128,20 @@ class AnaliseController
                 $diferenca = $agora->diff($dataCriacao);
                 $mesesIdade = $diferenca->y * 12 + $diferenca->m;
 
-                if ($diferenca->y >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->y . " anos"; }
-                elseif ($diferenca->y == 1) { $idadeDominioTexto = "Criado há 1 ano"; }
-                elseif ($diferenca->m >= 2) { $idadeDominioTexto = "Criado há " . $diferenca->m . " meses"; }
-                elseif ($diferenca->m == 1) { $idadeDominioTexto = "Criado há 1 mês"; }
-                else { $idadeDominioTexto = "Criado há " . $diferenca->d . ($diferenca->d > 1 ? " dias" : " dia"); }
-
-            } catch (Exception $e) { $idadeDominioTexto = 'Data inválida'; }
+                if ($diferenca->y >= 2) {
+                    $idadeDominioTexto = "Criado há " . $diferenca->y . " anos";
+                } elseif ($diferenca->y == 1) {
+                    $idadeDominioTexto = "Criado há 1 ano";
+                } elseif ($diferenca->m >= 2) {
+                    $idadeDominioTexto = "Criado há " . $diferenca->m . " meses";
+                } elseif ($diferenca->m == 1) {
+                    $idadeDominioTexto = "Criado há 1 mês";
+                } else {
+                    $idadeDominioTexto = "Criado há " . $diferenca->d . ($diferenca->d > 1 ? " dias" : " dia");
+                }
+            } catch (Exception $e) {
+                $idadeDominioTexto = 'Data inválida';
+            }
         } elseif ($dadosWhois && !isset($dadosWhois->ErrorMessage)) {
             $idadeDominioTexto = 'Data de criação não informada';
         }
@@ -145,20 +151,34 @@ class AnaliseController
         $pontuacao = 100;
 
         if ($pontuacaoMaliciosa >= 3) {
-            $nivelRisco = 'Alto'; $corRisco = 'red'; $pontuacao -= 70;
+            $nivelRisco = 'Alto';
+            $corRisco = 'red';
+            $pontuacao -= 70;
         } elseif ($pontuacaoMaliciosa > 0) {
-            $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 40;
+            $nivelRisco = 'Médio';
+            $corRisco = 'yellow';
+            $pontuacao -= 40;
         } elseif ($pontuacaoSuspeita > 0) {
-            $nivelRisco = 'Médio'; $corRisco = 'yellow'; $pontuacao -= 20;
+            $nivelRisco = 'Médio';
+            $corRisco = 'yellow';
+            $pontuacao -= 20;
         }
 
         if ($mesesIdade !== null) {
             if ($mesesIdade < 3) {
-                if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
-                elseif ($nivelRisco == 'Médio') { $nivelRisco = 'Alto'; $corRisco = 'red'; }
+                if ($nivelRisco == 'Baixo') {
+                    $nivelRisco = 'Médio';
+                    $corRisco = 'yellow';
+                } elseif ($nivelRisco == 'Médio') {
+                    $nivelRisco = 'Alto';
+                    $corRisco = 'red';
+                }
                 $pontuacao -= 50;
             } elseif ($mesesIdade < 6) {
-                if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
+                if ($nivelRisco == 'Baixo') {
+                    $nivelRisco = 'Médio';
+                    $corRisco = 'yellow';
+                }
                 $pontuacao -= 30;
             } elseif ($mesesIdade < 12) {
                 $pontuacao -= 10;
@@ -180,11 +200,22 @@ class AnaliseController
         curl_close($ch);
 
         if (!$temSSL || strpos($urlParaAnalisar, 'https://') !== 0) {
-            if ($nivelRisco == 'Baixo') { $nivelRisco = 'Médio'; $corRisco = 'yellow'; }
+            if ($nivelRisco == 'Baixo') {
+                $nivelRisco = 'Médio';
+                $corRisco = 'yellow';
+            }
             $pontuacao -= 25;
         }
 
         $pontuacao = max(0, min(100, $pontuacao));
+
+        $siteDAO = new SiteDAO($this->param);
+        $idSite = $siteDAO->obterOuCriarIdPelaUrl($urlParaAnalisar);
+        
+        if ($idSite) {
+            $avaliacaoDAO = new AvaliacaoDAO($this->param);
+            $avaliacoesDoSite = $avaliacaoDAO->buscarPorSite($idSite);
+        }
 
         $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao);
 
@@ -195,6 +226,7 @@ class AnaliseController
             'totalMecanismos' => $totalMecanismos,
             'nivelRisco' => $nivelRisco,
             'corRisco' => $corRisco,
+            'avaliacoes' => $avaliacoesDoSite,
             'pontuacao' => $pontuacao,
             'idadeDominio' => $idadeDominioTexto,
             'dataCriacao' => $dataCriacao,
@@ -208,7 +240,6 @@ class AnaliseController
         $htmlResultado = ob_get_clean();
 
         echo $htmlResultado;
-
     }
 
     private function salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao)
@@ -225,7 +256,8 @@ class AnaliseController
             $idUsuario = $_SESSION['id_usuario'];
             $siteDAO = new SiteDAO($this->param);
             $idSite = $siteDAO->obterOuCriarIdPelaUrl($urlParaAnalisar);
-
+            
+            
             if ($idSite) {
                 $analiseDAO = new AnaliseDAO($this->param);
                 $detalhes = "Pontuação final: " . $pontuacao . "/100";

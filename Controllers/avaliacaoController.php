@@ -49,6 +49,7 @@ class avaliacaoController
             $id_usuario = $_SESSION['id_usuario'];
             $comentario = trim(strip_tags($_POST['comentario'])); 
             $url_analisada = trim($_POST['url_analisada']);
+            $nota = isset($_POST['nota']) ? (int)$_POST['nota'] : 5;
 
             if (!filter_var($url_analisada, FILTER_VALIDATE_URL)) {
                 $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'A URL informada não parece válida. Use o formato completo (ex: https://...).'];
@@ -60,7 +61,7 @@ class avaliacaoController
                     $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Erro ao processar a URL informada no banco de dados. Tente novamente.'];
                 } else {
                     $avaliacaoDAO = new AvaliacaoDAO($this->param);
-                    if ($avaliacaoDAO->adicionarAvaliacao($id_usuario, $id_site, $comentario)) {
+                    if ($avaliacaoDAO->adicionarAvaliacao($id_usuario, $id_site, $comentario, $nota)) {
                         $_SESSION['msg_avaliacao'] = ['tipo' => 'sucesso', 'texto' => 'Sua avaliação foi enviada com sucesso! Obrigado por contribuir.'];
                     } else {
                         $_SESSION['msg_avaliacao'] = ['tipo' => 'erro', 'texto' => 'Erro ao salvar sua avaliação no banco de dados. Tente novamente.'];
