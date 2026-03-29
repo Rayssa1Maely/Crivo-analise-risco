@@ -2,6 +2,7 @@
 
 if (isset($_SESSION['id_usuario'])) {
     require_once "Views/menu_posLogado.php";
+    $urlPreenchida = isset($_GET['url']) ? htmlspecialchars($_GET['url']) : '';
 } else {
     require_once "Views/menu.php";
 }
@@ -40,6 +41,7 @@ if (isset($_SESSION['id_usuario'])) {
                             <input type="url" id="url_analisada" name="url_analisada"
                                 placeholder="https://www.siteexemplo.com.br"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value="<?= $urlPreenchida ?>"
                                 required>
 
                         </div>

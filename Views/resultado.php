@@ -169,6 +169,14 @@ if ($totalAvaliacoes > 0) {
             Avaliações da Comunidade
         </h3>
 
+        <a href="/crivo/avaliacoes?url=<?= urlencode($urlParaAnalisar) ?>"
+            class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Avaliar este site
+        </a>
+        
         <?php if (!isset($_SESSION['id_usuario'])): ?>
             <div class='flex flex-col items-center justify-center py-8'>
                 <div class='bg-slate-100 p-4 rounded-full mb-4'>
