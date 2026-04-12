@@ -9,8 +9,9 @@ class Avaliacao
         private string $comentario = "",
         private string $data_avaliacao = "",
         private string $nome_usuario = "",
-        private int $nota = 5
+        private $nota = 5
     ) {
+        //$this->nota = (int)$this->nota;
     }
 
     public function getIdAvaliacao()

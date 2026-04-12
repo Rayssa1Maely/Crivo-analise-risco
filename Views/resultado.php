@@ -46,7 +46,7 @@ if ($totalAvaliacoes > 0) {
                         <?php elseif ($corRisco == 'yellow'): ?>
                             Algumas preocupações detectadas (<?php echo $pontuacaoSuspeita; ?> suspeitas). Revise os detalhes cuidadosamente.
                         <?php else: ?>
-                            Nenhuma ameaça significativa detectada pelos <?php echo $totalMecanismos; ?> mecanismos de segurança.
+                            Nenhuma ameaça significativa detectada pelos mecanismos de segurança.
                         <?php endif; ?>
                     </p>
                     <div class="flex items-center mt-3">
@@ -57,12 +57,17 @@ if ($totalAvaliacoes > 0) {
                     </div>
                 </div>
             </div>
+
             <div class="mt-4 sm:mt-0 sm:ml-6 flex-shrink-0 flex flex-col items-start sm:items-end w-full sm:w-auto">
-                <a href="/crivo/relatorio">
-                    <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Ver Relatório Completo
-                    </button></a>
-                <button class="mt-2 text-xs text-gray-500 hover:underline">Reportar Problema</button>
+                <?php if (isset($idAnaliseRecente) && $idAnaliseRecente): ?>
+                    <a href="/crivo/relatorio?id=<?php echo $idAnaliseRecente; ?>">
+                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none">
+                            Ver Relatório Completo
+                        </button>
+                    </a>
+                <?php else: ?>
+                    <p class="text-xs text-gray-500">Faz login para ver o relatório completo</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -176,7 +181,7 @@ if ($totalAvaliacoes > 0) {
             </svg>
             Avaliar este site
         </a>
-        
+
         <?php if (!isset($_SESSION['id_usuario'])): ?>
             <div class='flex flex-col items-center justify-center py-8'>
                 <div class='bg-slate-100 p-4 rounded-full mb-4'>

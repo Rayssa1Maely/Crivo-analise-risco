@@ -44,6 +44,7 @@
 
 	$route->get("/analisar", [analiseController::class,"analisar"]);
 	$route->post("/analisar", [analiseController::class,"analisar"]);
+	$route->get("/relatorio", [analiseController::class, "verRelatorio"]);
 
 	$route->get("/historico", [analiseController::class,"historico"]);
 

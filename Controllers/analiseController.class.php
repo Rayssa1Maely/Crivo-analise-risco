@@ -217,7 +217,7 @@ class AnaliseController
             $avaliacoesDoSite = $avaliacaoDAO->buscarPorSite($idSite);
         }
 
-        $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao);
+        $idAnaliseRecente = $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao);
 
         $dadosParaView = [
             'url' => $urlParaAnalisar,
@@ -227,6 +227,7 @@ class AnaliseController
             'nivelRisco' => $nivelRisco,
             'corRisco' => $corRisco,
             'avaliacoes' => $avaliacoesDoSite,
+            'idAnaliseRecente' => $idAnaliseRecente,
             'pontuacao' => $pontuacao,
             'idadeDominio' => $idadeDominioTexto,
             'dataCriacao' => $dataCriacao,
@@ -261,8 +262,10 @@ class AnaliseController
             if ($idSite) {
                 $analiseDAO = new AnaliseDAO($this->param);
                 $detalhes = "Pontuação final: " . $pontuacao . "/100";
-                $analiseDAO->salvar($idUsuario, $idSite, $nivelRisco, $detalhes);
+                return $analiseDAO->salvar($idUsuario, $idSite, $nivelRisco, $detalhes);
             }
+            return false; 
+
         } catch (Exception $e) {
             error_log("Erro ao salvar análise no histórico: " . $e->getMessage());
         }
@@ -310,5 +313,36 @@ class AnaliseController
 
         extract($dadosViewHistorico);
         require_once "Views/historico.php";
+    }
+
+    public function verRelatorio()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $idAnalise = $_GET['id'] ?? null; 
+
+        if (!$idAnalise) {
+            echo "Erro: O ID não chegou ao Controller. <br>";
+            echo "URL completa detectada pelo servidor: " . $_SERVER['REQUEST_URI'];
+            exit(); 
+        }
+
+        $analiseDAO = new AnaliseDAO($this->param);
+        $analise = $analiseDAO->buscarPorId($idAnalise);
+
+        if (!$analise) {
+            die("Análise com o ID $idAnalise não encontrada no banco de dados.");
+        }
+
+        $siteDAO = new SiteDAO($this->param);
+        $idSite = $siteDAO->obterOuCriarIdPelaUrl($analise->getUrlAnalisada());
+        
+        $avaliacoes = [];
+        if ($idSite) {
+            $avaliacaoDAO = new AvaliacaoDAO($this->param);
+            $avaliacoes = $avaliacaoDAO->buscarPorSite($idSite);
+        }
+
+        require_once "Views/relatorio.php";
     }
 }

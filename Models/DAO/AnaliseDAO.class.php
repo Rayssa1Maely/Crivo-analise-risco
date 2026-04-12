@@ -37,7 +37,36 @@ class AnaliseDAO
         }
     }
 
-    public function salvar(int $id_usuario, int $id_site, string $resultadoRisco, ?string $detalhes = null): bool
+    public function buscarPorId(int $id_analise)
+    {
+        $sql = "SELECT a.id_analise, a.id_usuario, s.url as url_analisada, 
+                    a.resultado_risco as resultado_analise, a.data_analise 
+                FROM analises a 
+                JOIN sites s ON a.id_site = s.id_site 
+                WHERE a.id_analise = ?";
+
+        try {
+            $stm = $this->db->prepare($sql);
+            $stm->bindValue(1, $id_analise, PDO::PARAM_INT);
+            $stm->execute();
+            $res = $stm->fetch(PDO::FETCH_ASSOC);
+
+            if ($res) {
+                return new Analise(
+                    (int)$res['id_analise'],
+                    (int)$res['id_usuario'],
+                    (string)$res['url_analisada'],
+                    (string)$res['resultado_analise'],
+                    (string)$res['data_analise']
+                );
+            }
+            return null;
+        } catch (PDOException $e) {
+            error_log("Erro ao buscar detalhes da análise: " . $e->getMessage());
+            return null;
+        }
+    }
+    public function salvar(int $id_usuario, int $id_site, string $resultadoRisco, ?string $detalhes = null)
     {
         $sql = "INSERT INTO analises (id_usuario, id_site, resultado_risco, detalhes)
                 VALUES (?, ?, ?, ?)";
@@ -49,7 +78,9 @@ class AnaliseDAO
             $stm->bindValue(3, $resultadoRisco);
             $stm->bindValue(4, $detalhes, $detalhes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
 
-            return $stm->execute();
+            if ($stm->execute()) {
+            return $this->db->lastInsertId(); 
+            }
 
         } catch(PDOException $e) {
             error_log("Erro ao salvar análise: " . $e->getMessage());
