@@ -293,8 +293,8 @@ class AnaliseController
         if (!empty($historico)) {
             usort($historico, function ($a, $b) {
                 try {
-                    $timeA = new DateTime($a->getDataAnaliseOriginal());
-                    $timeB = new DateTime($b->getDataAnaliseOriginal());
+                    $timeA = new DateTime($a->getDataAnalise());
+                    $timeB = new DateTime($b->getDataAnalise());
                     return $timeB->getTimestamp() - $timeA->getTimestamp();
                 } catch (Exception $e) {
                     return 0;

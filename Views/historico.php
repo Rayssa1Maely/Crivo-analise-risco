@@ -54,8 +54,16 @@ require_once "Views/menu_posLogado.php";
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 hidden md:table-cell">
-                                            <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800">
-                                                <?php echo htmlspecialchars($analise->getResultadoAnalise()); ?>
+                                                <?php 
+                                                if($analise->getResultadoAnalise() == "Médio"){
+                                                    echo "<span class='px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800'>";
+
+                                                }else if ($analise->getResultadoAnalise() == "Alto"){
+                                                    echo "<span class='px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-red-100 text-red-800'>";
+                                                }else{
+                                                    echo "<span class='px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800'>";
+                                                }
+                                                echo htmlspecialchars($analise->getResultadoAnalise()); ?>
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell">

@@ -14,26 +14,19 @@
         <nav class="container mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
 
-                <!-- Logo -->
+                
                 <div>
                     <a href="#" class="text-xl font-bold text-gray-800">
                         CRIVO
                     </a>
                 </div>
 
-                <!-- Links de Navegação Principais -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Caracteristicas</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Como funciona</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Sobre</a>
-                </div>
+                
 
-                <!-- Ações do Usuário Logado com Dropdown -->
                 <div class="relative">
-                    <!-- Botão que aciona o dropdown -->
                     <button id="user-menu-button" class="flex items-center space-x-2 focus:outline-none">
                         <span class="font-semibold text-gray-600">Minha Conta</span>
-                        <!-- Ícone de seta para baixo -->
+
                         <svg class="h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                             fill="currentColor">
                             <path fill-rule="evenodd"
@@ -42,7 +35,6 @@
                         </svg>
                     </button>
 
-                    <!-- Painel do Dropdown (escondido por padrão) -->
                     <div id="user-menu"
                         class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
                         <a href="/crivo/historico" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu
