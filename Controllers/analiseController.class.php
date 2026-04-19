@@ -216,8 +216,9 @@ class AnaliseController
             $avaliacaoDAO = new AvaliacaoDAO($this->param);
             $avaliacoesDoSite = $avaliacaoDAO->buscarPorSite($idSite);
         }
+        $parecerIaTexto = $this->gerarParecerComIA($urlParaAnalisar, $nivelRisco, $idadeDominioTexto, $totalMecanismos);
 
-        $idAnaliseRecente = $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao);
+        $idAnaliseRecente = $this->salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao, $parecerIaTexto);
 
         $dadosParaView = [
             'url' => $urlParaAnalisar,
@@ -243,14 +244,14 @@ class AnaliseController
         echo $htmlResultado;
     }
 
-    private function salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao)
+    private function salvarAnaliseNoHistorico($urlParaAnalisar, $nivelRisco, $pontuacao, $parecerIa)
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
         if (!isset($_SESSION['id_usuario'])) {
-            return;
+            return false;
         }
 
         try {
@@ -262,7 +263,7 @@ class AnaliseController
             if ($idSite) {
                 $analiseDAO = new AnaliseDAO($this->param);
                 $detalhes = "Pontuação final: " . $pontuacao . "/100";
-                return $analiseDAO->salvar($idUsuario, $idSite, $nivelRisco, $detalhes);
+                return $analiseDAO->salvar($idUsuario, $idSite, $nivelRisco, $detalhes, $parecerIa);
             }
             return false; 
 
@@ -344,5 +345,47 @@ class AnaliseController
         }
 
         require_once "Views/relatorio.php";
+    }
+
+    private function gerarParecerComIA($url, $nivelRisco, $idadeDominio, $totalMecanismos)
+    {
+        $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
+        if (!$apiKey) return "Erro interno: Chave da API (GEMINI_API_KEY) não encontrada no .env!";
+
+        $prompt = "Ajas como um analista sénior de cibersegurança do sistema 'Crivo'. Analisa de forma rápida o site: $url. O risco detetado pelas APIs é $nivelRisco. A idade do domínio é $idadeDominio. Total de motores a analisar: $totalMecanismos. Escreve um parecer direto e amigável para o utilizador comum em 3 frases, explicando se ele pode confiar ou não no site com base nestes dados. Sê incisivo. Não uses formatação (asteriscos, negritos).";
+
+        $urlApi = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+
+        $dados = [
+            "contents" => [
+                ["parts" => [["text" => $prompt]]]
+            ]
+        ];
+
+        $ch = curl_init($urlApi);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); 
+
+        $resposta = curl_exec($ch);
+        $erroCurl = curl_error($ch);
+        curl_close($ch);
+
+        if ($erroCurl) {
+            return "Erro de conexão (cURL): " . $erroCurl;
+        }
+
+        if ($resposta) {
+            $json = json_decode($resposta, true);
+            if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
+                return $json['candidates'][0]['content']['parts'][0]['text'];
+            } else {
+                return "Google recusou a conexão. Motivo: " . $resposta;
+            }
+        }
+        return "Sem resposta do servidor.";
     }
 }

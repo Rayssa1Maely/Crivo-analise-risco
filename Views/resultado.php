@@ -1,6 +1,8 @@
 <?php
 $totalAvaliacoes = is_array($avaliacoes) ? count($avaliacoes) : 0;
 $media = 0;
+$bgClass = 'bg-gray-50 border-gray-200';
+$iconClass = 'text-gray-400';
 
 if ($totalAvaliacoes > 0) {
     $soma = 0;
@@ -8,6 +10,17 @@ if ($totalAvaliacoes > 0) {
         $soma += $av->getNota();
     }
     $media = $soma / $totalAvaliacoes;
+
+    if ($media >= 4.0) {
+        $bgClass = 'bg-green-50 border-green-200';
+        $iconClass = 'text-green-500';
+    } elseif ($media >= 2.5) {
+        $bgClass = 'bg-yellow-50 border-yellow-200';
+        $iconClass = 'text-yellow-500';
+    } else {
+        $bgClass = 'bg-red-50 border-red-200';
+        $iconClass = 'text-red-500';
+    }
 }
 
 ?>
@@ -42,9 +55,9 @@ if ($totalAvaliacoes > 0) {
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">Site de Risco <?php echo $nivelRisco; ?></h2>
                     <p class="text-sm text-gray-600 mt-1">
                         <?php if ($corRisco == 'red'): ?>
-                            Detecções significativas encontradas (<?php echo $pontuacaoMaliciosa; ?> maliciosas / <?php echo $pontuacaoSuspeita; ?> suspeitas). Evite este site.
+                            Detecções significativas encontradas, evite este site.
                         <?php elseif ($corRisco == 'yellow'): ?>
-                            Algumas preocupações detectadas (<?php echo $pontuacaoSuspeita; ?> suspeitas). Revise os detalhes cuidadosamente.
+                            Algumas preocupações detectadas, revise os detalhes cuidadosamente.
                         <?php else: ?>
                             Nenhuma ameaça significativa detectada pelos mecanismos de segurança.
                         <?php endif; ?>
@@ -149,20 +162,24 @@ if ($totalAvaliacoes > 0) {
                 <?php endif; ?>
             </div>
 
-            <div class="flex items-start p-4 rounded-lg border <?php echo ($media < 3 && $totalAvaliacoes > 0) ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'; ?>">
-                <svg class="h-6 w-6 <?php echo ($media < 3 && $totalAvaliacoes > 0) ? 'text-yellow-500' : 'text-green-500'; ?> flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start p-4 rounded-lg border <?php echo $bgClass; ?>">
+                <svg class="h-6 w-6 <?php echo $iconClass; ?> flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <div class="ml-3">
                     <p class="font-semibold text-gray-800 text-base">Reputação da Comunidade</p>
                     <p class="text-sm text-gray-600">
                         <?php
-                        if ($totalAvaliacoes == 0) echo "Sem avaliações ainda.";
-                        else echo "Média: " . number_format($media, 1) . " / 5.0 (" . $totalAvaliacoes . " avaliações)";
+                        if ($totalAvaliacoes == 0) {
+                            echo "Nenhuma avaliação registrada.";
+                        } else {
+                            echo "Média: " . number_format($media, 1) . " / 5.0 (" . $totalAvaliacoes . " avaliações)";
+                        }
                         ?>
                     </p>
                 </div>
             </div>
+
         </div>
     </div>
 

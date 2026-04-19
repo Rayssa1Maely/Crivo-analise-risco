@@ -34,17 +34,24 @@ if ($nivelRisco == 'Alto') {
     $textoExplicativo = "Não encontramos nenhum registro malicioso atrelado a este domínio. Ele possui tempo de registro adequado, protocolos de criptografia válidos e não está em nenhuma lista negra global de segurança.";
     $acaoRecomendada = "Você pode navegar e realizar compras com tranquilidade. Ainda assim, sempre verifique se o valor do produto condiz com a realidade do mercado.";
 }
+$parecerDaIA = $analise->getParecerIa();
+$tagIA = "";
+
+if (!empty($parecerDaIA)) {
+    $textoExplicativo = htmlspecialchars($parecerDaIA);
+    $tagIA = '<span class="ml-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-purple-700 border border-purple-200 uppercase tracking-widest shadow-sm"><svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> IA Gemini</span>';
+}
 ?>
 
 <?php require_once "Views/menu_posLogado.php"; ?>
 
 <main class="bg-gray-50 py-12 min-h-screen">
     <div class="container mx-auto px-6 max-w-5xl">
-        
+
         <div class="mb-10 text-center md:text-left flex flex-col md:flex-row justify-between items-center border-b border-gray-200 pb-8">
             <div>
                 <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Dossiê de Segurança</h1>
-                <p class="text-gray-500 font-mono mt-2"><?= htmlspecialchars($urlParaAnalisar) ?></p>
+                <p class="text-gray-500 font-mono mt-2 break-all pr-4"><?= htmlspecialchars($urlParaAnalisar) ?></p>
             </div>
             <div class="mt-4 md:mt-0 text-right">
                 <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Data da Auditoria</p>
@@ -58,7 +65,10 @@ if ($nivelRisco == 'Alto') {
             </div>
             <div>
                 <h2 class="text-sm font-black text-<?= $corTema ?>-800 uppercase tracking-widest mb-1">Veredito Final</h2>
-                <h3 class="text-4xl font-black text-<?= $corTema ?>-900 mb-4">Risco <?= $nivelRisco ?></h3>
+                <h3 class="text-4xl font-black text-<?= $corTema ?>-900 mb-4 flex items-center flex-wrap gap-2">
+                    Risco <?= $nivelRisco ?>
+                    <?= $tagIA ?>
+                </h3>
                 <p class="text-<?= $corTema ?>-800 text-lg font-medium leading-relaxed"><?= $textoExplicativo ?></p>
                 <div class="mt-6 inline-block bg-white/60 px-6 py-3 rounded-xl border border-<?= $corTema ?>-200">
                     <span class="font-black text-gray-900">Recomendação Crivo:</span> <span class="text-gray-700"><?= $acaoRecomendada ?></span>
@@ -69,21 +79,26 @@ if ($nivelRisco == 'Alto') {
         <div class="bg-white rounded-3xl p-10 shadow-xl border border-gray-100 mb-12 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10"></div>
             <h3 class="text-3xl md:text-3xl font-extrabold text-gray-900 leading-tight">Guia Anti-Fraude</h3><br>
-            
+
             <div class="grid md:grid-cols-2 gap-8">
                 <div class="flex gap-4">
                     <div class="bg-blue-100 text-blue-600 p-3 rounded-xl h-fit">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
                     </div>
                     <div>
                         <h4 class="font-black text-gray-900 text-lg">Inspecione a URL</h4>
                         <p class="text-gray-600 text-sm mt-1">Golpistas trocam letras para enganar os olhos (ex: <i>g00gle.com</i> ou <i>americanas-oferta.com</i>). O Crivo analisa isso, mas seu olho clínico é essencial.</p>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-4">
                     <div class="bg-blue-100 text-blue-600 p-3 rounded-xl h-fit">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
                     <div>
                         <h4 class="font-black text-gray-900 text-lg">Milagre não existe</h4>
@@ -104,7 +119,9 @@ if ($nivelRisco == 'Alto') {
                     <div class="flex flex-col">
                         <div class="flex text-yellow-400">
                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <svg class="h-4 w-4 <?= ($i <= round($media)) ? 'fill-current' : 'text-gray-200 fill-current' ?>" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="h-4 w-4 <?= ($i <= round($media)) ? 'fill-current' : 'text-gray-200 fill-current' ?>" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
                             <?php endfor; ?>
                         </div>
                         <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1"><?= $totalAvaliacoes ?> Avaliações</span>
@@ -127,7 +144,9 @@ if ($nivelRisco == 'Alto') {
                                     </div>
                                     <div class="flex text-yellow-400 mb-3">
                                         <?php for ($i = 1; $i <= 5; $i++): ?>
-                                            <svg class="h-3 w-3 <?= ($i <= $av->getNota()) ? 'fill-current' : 'text-gray-200 fill-current' ?>" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            <svg class="h-3 w-3 <?= ($i <= $av->getNota()) ? 'fill-current' : 'text-gray-200 fill-current' ?>" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
                                         <?php endfor; ?>
                                     </div>
                                     <p class="text-gray-600 text-sm leading-relaxed">"<?= nl2br(htmlspecialchars($av->getComentario())) ?>"</p>
@@ -143,10 +162,12 @@ if ($nivelRisco == 'Alto') {
                 <?php endif; ?>
             </div>
         </div>
-        
+
         <div class="text-center">
             <a href="/crivo/historico" class="inline-flex items-center font-bold text-gray-500 hover:text-gray-900 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
                 Voltar para o Histórico
             </a>
         </div>

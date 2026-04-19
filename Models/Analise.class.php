@@ -6,7 +6,8 @@ class Analise
         private int $id_usuario = 0,
         private string $url_analisada = "",
         private string $resultado_analise = "", 
-        private string $data_analise = ""
+        private string $data_analise = "",
+        private ?string $parecer_ia = ""
     ) {}
 
     public function getIdAnalise()
@@ -32,6 +33,10 @@ class Analise
     public function getDataAnalise()
     {
         return date("d/m/Y H:i", strtotime($this->data_analise));
+    }
+
+    public function getParecerIa() {
+        return $this->parecer_ia;
     }
 }
 ?>

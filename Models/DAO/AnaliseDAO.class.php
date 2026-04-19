@@ -40,7 +40,7 @@ class AnaliseDAO
     public function buscarPorId(int $id_analise)
     {
         $sql = "SELECT a.id_analise, a.id_usuario, s.url as url_analisada, 
-                    a.resultado_risco as resultado_analise, a.data_analise 
+                    a.resultado_risco as resultado_analise, a.data_analise, a.parecer_ia 
                 FROM analises a 
                 JOIN sites s ON a.id_site = s.id_site 
                 WHERE a.id_analise = ?";
@@ -57,7 +57,8 @@ class AnaliseDAO
                     (int)$res['id_usuario'],
                     (string)$res['url_analisada'],
                     (string)$res['resultado_analise'],
-                    (string)$res['data_analise']
+                    (string)$res['data_analise'],
+                    (string)$res['parecer_ia']
                 );
             }
             return null;
@@ -66,10 +67,10 @@ class AnaliseDAO
             return null;
         }
     }
-    public function salvar(int $id_usuario, int $id_site, string $resultadoRisco, ?string $detalhes = null)
+    public function salvar(int $id_usuario, int $id_site, string $resultadoRisco, ?string $detalhes = null, ?string $parecerIa = null)
     {
-        $sql = "INSERT INTO analises (id_usuario, id_site, resultado_risco, detalhes)
-                VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO analises (id_usuario, id_site, resultado_risco, detalhes, parecer_ia)
+                VALUES (?, ?, ?, ?, ?)";
 
         try {
             $stm = $this->db->prepare($sql);
@@ -77,6 +78,7 @@ class AnaliseDAO
             $stm->bindValue(2, $id_site, PDO::PARAM_INT);
             $stm->bindValue(3, $resultadoRisco);
             $stm->bindValue(4, $detalhes, $detalhes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stm->bindValue(5, $parecerIa, $parecerIa === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
 
             if ($stm->execute()) {
             return $this->db->lastInsertId(); 
