@@ -39,6 +39,8 @@
 	$route->get("/login", [usuarioController::class,"login"]);
 	$route->post("/login", [usuarioController::class,"login"]);
 
+	$route->get("/logout", [usuarioController::class, "logout"]);
+
 	$route->get('/login/google', [usuarioController::class, 'authGoogle']);
 	$route->get('/login/google-callback', [usuarioController::class, 'callbackGoogle']);
 

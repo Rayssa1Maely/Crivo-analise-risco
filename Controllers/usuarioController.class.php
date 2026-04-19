@@ -145,4 +145,17 @@ class usuarioController
             exit();
         }
     }
+
+    public function logout(){
+        if (session_status() === PHP_SESSION_NONE){
+            session_start();
+        }
+
+        $_SESSION = array();
+
+        session_destroy();
+
+        header("Location: /crivo/");
+        exit();
+    }
 }
