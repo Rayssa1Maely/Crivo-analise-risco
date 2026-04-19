@@ -70,7 +70,7 @@ require_once "Views/menu_posLogado.php";
                                             <?php echo $analise->getDataAnalise(); ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="/crivo/relatorio" class="text-blue-600 hover:text-blue-800">Ver detalhes</a>
+                                            <a href="/crivo/relatorio?id=<?= $analise->getIdAnalise() ?>" class="text-blue-600 hover:text-blue-800">Ver detalhes</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
