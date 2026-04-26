@@ -48,7 +48,7 @@
                 <div class="mb-6 text-left">
                     <label for="confirmar-senha" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar
                         Senha</label>
-                    <input type="password" id="confirmar-senha" name="confirmar-senha" placeholder="Repita a senha" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="confirmar-senha" name="confirmar_senha" placeholder="Repita a senha" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <div class="text-red-600 text-sm mt-1"><?php echo $msg[3]; ?></div>
                 </div>
 

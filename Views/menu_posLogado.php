@@ -8,7 +8,7 @@
     <title>Menu de Navegação - Logado</title>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
     <header class="bg-white shadow-sm">
         <nav class="container mx-auto px-6 py-4">
@@ -67,5 +67,4 @@
         });
     </script>
 
-</body>
 

@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once "Views/menu_posLogado.php";
 ?>
 
-<main>
-    <section class="bg-gray-50 py-20 sm:py-24">
+<main class="flex-grow flex flex-col">
+    <section class="flex-grow bg-gray-50 py-20 sm:py-24">
         <div class="container mx-auto px-6">
             
             <div class="text-center md:text-left md:flex md:items-center md:justify-between">
@@ -17,7 +17,7 @@ require_once "Views/menu_posLogado.php";
                     Aqui estão todas as análises que você já realizou, <?php echo htmlspecialchars($nome_usuario); ?>.
                 </p>
             </div>
-
+ 
             <div class="mt-16 bg-white shadow-xl rounded-lg overflow-hidden">
                 <div class="overflow-x-auto">
                     
@@ -84,8 +84,8 @@ require_once "Views/menu_posLogado.php";
 
         </div>
     </section>
+</main>
 
     <?php
         require_once "Views/footer.html";
     ?>
-</main>

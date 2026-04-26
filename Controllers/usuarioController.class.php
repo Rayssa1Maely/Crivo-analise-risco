@@ -59,7 +59,7 @@ class usuarioController
             if (empty($_POST["confirmar_senha"])) {
                 $msg[3] = "Confirme a sua senha";
                 $erro = true;
-            } elseif ($_POST["senha"] !== $_POST["confirmar-senha"]) {
+            } elseif ($_POST["senha"] !== $_POST["confirmar_senha"]) {
                 $msg[3] = "As senhas não coincidem. Tente novamente.";
                 $erro = true;
             }
