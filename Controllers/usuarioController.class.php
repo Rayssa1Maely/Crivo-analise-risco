@@ -41,17 +41,33 @@ class usuarioController
 
     public function cadastrar()
     {
-        $msg = ["", "", "", "", ""];
+        $msg = ["", "", "", ""];
         if ($_POST) {
             $erro = false;
             if (empty($_POST["nome"])) { $msg[0] = "Preencha o nome"; $erro = true; }
-            if (empty($_POST["email"])) { $msg[1] = "Preencha o email"; $erro = true; }
+
+            if (empty($_POST["email"])) { 
+                $msg[1] = "Preencha o email"; 
+                $erro = true; 
+            } elseif (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
+                $msg[1] = "DIgite um email válido";
+                $erro = true;
+            }
+
             if (empty($_POST["senha"])) { $msg[2] = "Preencha a senha"; $erro = true; }
+
+            if (empty($_POST["confirmar_senha"])) {
+                $msg[3] = "Confirme a sua senha";
+                $erro = true;
+            } elseif ($_POST["senha"] !== $_POST["confirmar-senha"]) {
+                $msg[3] = "As senhas não coincidem. Tente novamente.";
+                $erro = true;
+            }
+
             if (!$erro) {
                 $usuarioDAO = new UsuarioDAO($this->param);
                 if ($usuarioDAO->emailJaExiste($_POST["email"])) {
-                    $msg[1] = "E-mail já cadastrado.";
-                    $erro = true;
+                    $msg[1] = "E-mail já está cadastrado.";
                 } else {
                     $senhaCriptografada = password_hash($_POST["senha"], PASSWORD_DEFAULT);
                     $usuario = new Usuario(0, $_POST["nome"], $_POST["email"], $senhaCriptografada);
