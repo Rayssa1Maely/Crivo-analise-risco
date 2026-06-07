@@ -55,6 +55,13 @@ class usuarioController
             }
 
             if (empty($_POST["senha"])) { $msg[2] = "Preencha a senha"; $erro = true; }
+            else {
+            $senha = $_POST["senha"];
+                if (strlen($senha) < 8 || !preg_match('/[A-Z]/', $senha) || !preg_match('/\d/', $senha)) {
+                    $msg[2] = "A senha deve ter pelo menos 8 caracteres, 1 maiúscula e 1 número.";
+                    $erro = true;
+                }
+            }
 
             if (empty($_POST["confirmar_senha"])) {
                 $msg[3] = "Confirme a sua senha";

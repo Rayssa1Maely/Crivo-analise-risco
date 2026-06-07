@@ -49,4 +49,21 @@ senhaInput.addEventListener('keyup', function() {
         reqNumero.querySelector('span').classList.add('text-red-500');
         reqNumero.querySelector('span').classList.remove('text-green-600');
     }
+
+
+    const formCadastro = document.querySelector('form');
+
+    formCadastro.addEventListener('submit', function(event) {
+    const senha = senhaInput.value;
+    
+    const temTamanho = senha.length >= 8;
+    const temMaiuscula = senha.match(/[A-Z]/);
+    const temNumero = senha.match(/\d/);
+
+    if (!temTamanho || !temMaiuscula || !temNumero) {
+        event.preventDefault(); 
+        alert("Sua senha está fraca! Verifique se ela cumpre todos os requisitos antes de continuar.");
+        senhaInput.focus();
+    }
+});
 });

@@ -18,12 +18,48 @@ class AnaliseController
             return;
         }
 
-        if (empty($_POST['url']) || !filter_var($_POST['url'], FILTER_VALIDATE_URL)) {
+        if (empty($_POST['url'])) {
             http_response_code(400);
-            echo '<p class="text-red-600 text-center">URL inválida ou não fornecida.</p>';
+            echo '<p class="text-red-600 text-center">URL não fornecida.</p>';
             return;
         }
-        $urlParaAnalisar = $_POST['url'];
+        
+        $urlParaAnalisar = trim($_POST['url']);
+
+        if (strpos($urlParaAnalisar, 'http://') !== 0 && strpos($urlParaAnalisar, 'https://') !== 0) {
+            $urlParaAnalisar = 'https://' . $urlParaAnalisar;
+        }
+
+        if (!filter_var($urlParaAnalisar, FILTER_VALIDATE_URL)) {
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">O formato do link é inválido.</p>';
+            return;
+        }
+
+        $partesUrl = parse_url($urlParaAnalisar);
+
+        if (isset($partesUrl['user']) || isset($partesUrl['pass'])) {
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">A URL contém um formato suspeito ou não permitido.</p>';
+            return;
+        }
+
+        $dominio = $partesUrl['host'] ?? null;
+    
+        if (!$dominio) {
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">URL inválida. Não foi possível extrair o domínio.</p>';
+            return;
+        }
+        
+        $dominio = preg_replace('/^www\./i', '', $dominio);
+
+        if (!checkdnsrr($dominio, "A") && !checkdnsrr($dominio, "AAAA")) {
+            http_response_code(400);
+            echo '<p class="text-red-600 text-center">O domínio informado não existe ou está fora do ar.</p>';
+            return;
+        }
+
         $avaliacoesDoSite = [];
         $apiKeyVirusTotal = $_ENV['VIRUSTOTAL_API_KEY'] ?? null;
         $apiKeyWhois = $_ENV['WHOISXMLAPI_KEY'] ?? null;
@@ -34,14 +70,6 @@ class AnaliseController
             return;
         }
 
-        $partesUrl = parse_url($urlParaAnalisar);
-        $dominio = $partesUrl['host'] ?? null;
-        if (!$dominio) {
-            http_response_code(400);
-            echo '<p class="text-red-600 text-center">URL inválida. Não foi possível extrair o domínio.</p>';
-            return;
-        }
-        $dominio = preg_replace('/^www\./i', '', $dominio);
 
         $dadosVirusTotal = null;
         $dadosWhois = null;
@@ -119,10 +147,27 @@ class AnaliseController
         $idadeDominioTexto = 'Indisponível';
         $dataCriacao = null;
         $mesesIdade = null;
+        $dataCriacaoStr = null;
 
-        if ($dadosWhois && isset($dadosWhois->WhoisRecord->createdDate)) {
+        if ($dadosWhois && isset($dadosWhois->WhoisRecord)) {
+            $whois = $dadosWhois->WhoisRecord;
+            
+            if (isset($whois->createdDateNormalized)) {
+                $dataCriacaoStr = $whois->createdDateNormalized;
+            } 
+            elseif (isset($whois->registryData->createdDateNormalized)) {
+                $dataCriacaoStr = $whois->registryData->createdDateNormalized;
+            } 
+            elseif (isset($whois->createdDate)) {
+                $dataCriacaoStr = $whois->createdDate;
+            } 
+            elseif (isset($whois->registryData->createdDate)) {
+                $dataCriacaoStr = $whois->registryData->createdDate;
+            }
+        }
+
+        if ($dataCriacaoStr !== null) {
             try {
-                $dataCriacaoStr = $dadosWhois->WhoisRecord->createdDate;
                 $dataCriacao = new DateTime($dataCriacaoStr);
                 $agora = new DateTime();
                 $diferenca = $agora->diff($dataCriacao);
@@ -232,8 +277,9 @@ class AnaliseController
             'pontuacao' => $pontuacao,
             'idadeDominio' => $idadeDominioTexto,
             'dataCriacao' => $dataCriacao,
+            'mesesIdade' => $mesesIdade,
             'temSSL' => $temSSL,
-            'erroApi' => $erroApi,
+            'erroApi' => $erroApi
         ];
 
         ob_start();

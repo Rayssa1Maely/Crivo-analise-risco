@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between">
                 
                 <div>
-                    <a href="#" class="text-xl font-bold text-gray-800">
+                    <a href="/crivo/" class="text-xl font-bold text-gray-800">
                         CRIVO
                     </a>
                 </div>

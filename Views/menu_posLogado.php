@@ -16,7 +16,7 @@
 
                 
                 <div>
-                    <a href="#" class="text-xl font-bold text-gray-800">
+                    <a href="/crivo/dashboard" class="text-xl font-bold text-gray-800">
                         CRIVO
                     </a>
                 </div>

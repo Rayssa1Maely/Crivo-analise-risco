@@ -1,7 +1,11 @@
 <?php
 class Usuario
     {
-        public function __construct(private int $id = 0, private string $nome = "", private string $email = "", private string $senha = "") {}
+        public function __construct(
+            private int $id = 0, 
+            private string $nome = "", 
+            private string $email = "", 
+            private string $senha = "") {}
 
         public function getId()
         {
